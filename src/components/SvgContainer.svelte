@@ -1,6 +1,6 @@
 <script>
     import { onMount, onDestroy } from "svelte";
-    import { graphData, visibleLinks, allLinks } from "../stores";
+    import { graphData, visibleLinks, allLinks, selectedNode } from "../stores";
     import { observe } from "../functions.js";
     import * as d3 from "d3";
 
@@ -17,14 +17,18 @@
     $: d3.select(svg).call(zoom);
 
     $: {
-        links = [...$graphData.links.map((d) => Object.create(d))];
+        links = [
+            ...$graphData.links.map((d) =>
+                Object.assign(d, { color: "#f1f1f1" })
+            ),
+        ];
         nodes = [...$graphData.nodes.map((d) => Object.create(d))];
         observe();
         runSimulation();
     }
 
     onMount(() => {
-        zoomToFirstNode();
+        // zoomToNode($visibleLinks[0]);
         runSimulation();
     });
 
@@ -50,15 +54,19 @@
 
     $: {
         if ($visibleLinks.length > 0) {
-            firstNodeId = $visibleLinks[0];
-            zoomToFirstNode();
+            zoomToNode($visibleLinks[0]);
         }
     }
 
-    function zoomToFirstNode() {
+    $: {
+        if ($selectedNode.length > 0) {
+            zoomToNode($selectedNode);
+        }
+    }
 
+    function zoomToNode(item) {
         if (nodes.length > 0) {
-            const nodeToZoom = nodes.find((node) => node.id === firstNodeId);
+            const nodeToZoom = nodes.find((node) => node.id === item);
             if (nodeToZoom) {
                 const zoomTransform = d3.zoomIdentity
                     .translate(
@@ -74,6 +82,7 @@
                     .call(zoom.transform, zoomTransform);
                 // simulationUpdate();
             }
+            openLinks(nodeToZoom);
         }
     }
 
@@ -91,12 +100,37 @@
         const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
         return `M${d.source.x},${d.source.y} A${r},${r} 0 0,1 ${d.target.x},${d.target.y}`;
     }
+
+    function openLinks(node) {
+        // "z-index" on the selected links
+        if (nodes) {
+            links = links.sort((a, b) => {
+                if (
+                    a.source.id === node.id ||
+                    a.target.id === node.id ||
+                    b.source.id === node.id ||
+                    b.target.id === node.id
+                ) {
+                    return 1;
+                }
+                return -1;
+            });
+            links.forEach((link) => {
+                if (link.source.id === node.id || link.target.id === node.id) {
+                    link.color = "#919191";
+                } else {
+                    link.color = "#f2f2f2";
+                }
+            });
+            simulationUpdate();
+        }
+    }
 </script>
 
 <div class="graph" bind:clientWidth={width} bind:clientHeight={height}>
     <svg bind:this={svg} {width} {height}>
         {#each links as link}
-            <g stroke="#f2f2f2" stroke-width="2" fill="none">
+            <g stroke={link.color} stroke-width="1" fill="none">
                 <path
                     d={linkArc(link)}
                     data-attr={link.source.id}
@@ -107,24 +141,30 @@
 
         {#each nodes as node}
             <g
-                transform="translate({transform.x} {transform.y}) scale({transform.k} {transform.k})"
+                on:click={() => openLinks(node)}
+                on:keydown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        openLinks(node);
+                    }
+                }}
+                transform="translate({transform.x} {transform.y -
+                    5}) scale({transform.k} {transform.k})"
                 class="label"
                 data-attr={node.id}
                 color={$visibleLinks.includes(node.id)
                     ? "blue"
                     : $allLinks.includes(node.id)
                     ? "black"
-                    : " #919191"}
+                    : "#919191"}
             >
                 <foreignObject
                     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"
-                    width="350"
+                    width="300"
                     height="150"
                     x={node.x}
                     y={node.y}
-                    ><div>
-                        {node.title}
-                    </div>
+                >
+                    <div class="title">{node.title}</div>
                 </foreignObject>
             </g>
         {/each}
@@ -139,6 +179,16 @@
         cursor: grab;
         cursor: -moz-grab;
         cursor: -webkit-grab;
+    }
+
+    .label {
+        cursor: pointer;
+    }
+
+    .title {
+        background: white;
+        padding: 1px;
+        width: fit-content;
     }
 
     .graph:active {

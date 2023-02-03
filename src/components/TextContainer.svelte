@@ -1,7 +1,7 @@
 <script>
     import { marked } from "marked";
     import { Api } from "../config";
-    import { selectedMarkdown} from "../stores";
+    import { selectedMarkdown, selectedNode } from "../stores";
     import { onMount } from "svelte";
     import { observe } from "../functions.js";
 
@@ -11,8 +11,15 @@
         return `<a data-id="${Api}/resources/${href}" title="${text}">${text}</a>`;
     };
 
+    function handleClick(event) {
+        if (event.target.tagName === "A") {
+            $selectedNode = event.target.getAttribute("data-id");
+        }
+    }
+
     $: html = marked(
-        $selectedMarkdown.markdown || $selectedMarkdown[0].markdown,{ renderer }
+        $selectedMarkdown.markdown || $selectedMarkdown[0].markdown,
+        { renderer }
     );
 
     $: {
@@ -21,14 +28,15 @@
 
     onMount(() => {
         observe();
-        scrollContainer.addEventListener("scroll", function (e) {
-            observe();
-        });
     });
-
 </script>
 
-<div class="markdown" bind:this={scrollContainer}>
+<div
+    class="markdown"
+    bind:this={scrollContainer}
+    on:scroll={observe}
+    on:click={handleClick}
+>
     {@html html}
 </div>
 
