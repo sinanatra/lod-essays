@@ -1,66 +1,41 @@
 <script>
     import { marked } from "marked";
     import { Api } from "../config";
-    import { selectedMarkdown, visibleLinks, allLinks } from "../stores";
+    import { selectedMarkdown} from "../stores";
     import { onMount } from "svelte";
+    import { observe } from "../functions.js";
 
     const renderer = new marked.Renderer();
-
+    let scrollContainer;
     renderer.link = (href, title, text) => {
         return `<a data-id="${Api}/resources/${href}" title="${text}">${text}</a>`;
     };
 
     $: html = marked(
-        $selectedMarkdown.markdown || $selectedMarkdown[0].markdown,
-        { renderer }
+        $selectedMarkdown.markdown || $selectedMarkdown[0].markdown,{ renderer }
     );
 
+    $: {
+        observe();
+    }
+
     onMount(() => {
-        // observer changes when scrolling the text
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach((entry) => {
-                allLinks.update((items) => {
-                    const newItem = entry.target.getAttribute("data-id");
-                    if (!items.includes(newItem)) {
-                        items.push(newItem);
-                    }
-                    return items;
-                });
-
-                if (entry.isIntersecting) {
-                    visibleLinks.update((array) => {
-                        if (!array) {
-                            return [entry.target.getAttribute("data-id")];
-                        }
-                        return [...array, entry.target.getAttribute("data-id")];
-                    });
-                } else {
-                    visibleLinks.update((array) => {
-                        if (!array) {
-                            return [];
-                        }
-                        return array.filter(
-                            (link) =>
-                                link !== entry.target.getAttribute("data-id")
-                        );
-                    });
-                }
-            });
+        observe();
+        scrollContainer.addEventListener("scroll", function (e) {
+            observe();
         });
-
-        const links = document.querySelectorAll(".markdown a");
-        links.forEach((link) => observer.observe(link));
     });
+
 </script>
 
-<div class="markdown">
+<div class="markdown" bind:this={scrollContainer}>
     {@html html}
 </div>
 
 <style>
     .markdown {
         flex: 1;
-        min-width: 500px;
+        min-width: 250px;
         font-size: 1.25rem;
         padding: 8px;
         padding-right: 1rem;

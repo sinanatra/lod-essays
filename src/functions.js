@@ -1,4 +1,5 @@
 import { Api } from "./config.js";
+import { visibleLinks, allLinks } from "./stores";
 
 export async function fetchFile(url) {
     const response = await fetch(url);
@@ -69,4 +70,30 @@ export function parseJSONLD(jsonLD) {
     };
     parseRecursive(jsonLD);
     return triplets;
+}
+
+export function observe() {
+    // // observer changes when scrolling the text
+    const observer = new IntersectionObserver((entries, observer) => {
+        let visible = [];
+        entries.forEach((entry) => {
+            // save all links in allLinks
+            allLinks.update((items) => {
+                const newItem = entry.target.getAttribute("data-id");
+                if (!items.includes(newItem)) {
+                    items.push(newItem);
+                }
+                return items;
+            });
+            // save only the visible links in visibleLinks
+            if (entry.isIntersecting) {
+                visible.push(entry.target.getAttribute("data-id"));
+            }
+        });
+        // $visibleLinks = [...visible];
+        visibleLinks.set( [...visible])
+
+    });
+    const links = document.querySelectorAll(".markdown a");
+    links.forEach((link) => observer.observe(link));
 }

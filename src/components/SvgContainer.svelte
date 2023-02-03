@@ -1,20 +1,30 @@
 <script>
     import { onMount, onDestroy } from "svelte";
     import { graphData, visibleLinks, allLinks } from "../stores";
+    import { observe } from "../functions.js";
     import * as d3 from "d3";
 
     let width = 0;
     let height = 0;
     let transform = d3.zoomIdentity;
-    let svg, links, nodes, simulation;
+    let svg, links, nodes, simulation, firstNodeId, nodeToCenter;
+
+    const zoom = d3
+        .zoom()
+        .scaleExtent([1 / 4, 1])
+        .on("zoom", zoomed);
+
+    $: d3.select(svg).call(zoom);
 
     $: {
-        links = $graphData.links.map((d) => Object.create(d));
-        nodes = $graphData.nodes.map((d) => Object.create(d));
+        links = [...$graphData.links.map((d) => Object.create(d))];
+        nodes = [...$graphData.nodes.map((d) => Object.create(d))];
+        observe();
         runSimulation();
     }
 
     onMount(() => {
+        zoomToFirstNode();
         runSimulation();
     });
 
@@ -38,12 +48,34 @@
             .on("tick", simulationUpdate);
     }
 
-    $: d3.select(svg).call(
-        d3
-            .zoom()
-            .scaleExtent([1 / 2, 1])
-            .on("zoom", zoomed)
-    );
+    $: {
+        if ($visibleLinks.length > 0) {
+            firstNodeId = $visibleLinks[0];
+            zoomToFirstNode();
+        }
+    }
+
+    function zoomToFirstNode() {
+
+        if (nodes.length > 0) {
+            const nodeToZoom = nodes.find((node) => node.id === firstNodeId);
+            if (nodeToZoom) {
+                const zoomTransform = d3.zoomIdentity
+                    .translate(
+                        width / 2 - nodeToZoom.x,
+                        height / 2 - nodeToZoom.y
+                    )
+                    .scale(1);
+
+                d3.select(svg)
+                    .transition()
+                    .duration(500)
+                    // .ease(d3.easeBounceIn)
+                    .call(zoom.transform, zoomTransform);
+                // simulationUpdate();
+            }
+        }
+    }
 
     function simulationUpdate() {
         nodes = [...nodes];
@@ -78,7 +110,11 @@
                 transform="translate({transform.x} {transform.y}) scale({transform.k} {transform.k})"
                 class="label"
                 data-attr={node.id}
-                color={$visibleLinks.includes(node.id) ? "blue" : $allLinks.includes(node.id) ? "black":" #919191"}
+                color={$visibleLinks.includes(node.id)
+                    ? "blue"
+                    : $allLinks.includes(node.id)
+                    ? "black"
+                    : " #919191"}
             >
                 <foreignObject
                     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"
