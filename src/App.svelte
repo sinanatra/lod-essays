@@ -4,7 +4,6 @@
 	import { fetchFile, extractLinks, createTriplets } from "./functions.js";
 	import { selectedMarkdown, graphData } from "./stores.js";
 	import { v4 as uuidv4 } from "uuid";
-
 	import TextContainer from "./components/TextContainer.svelte";
 	import SvgContainer from "./components/SvgContainer.svelte";
 	import Header from "./components/Header.svelte";
@@ -37,7 +36,7 @@
 		<Header {MarkdownFiles} {selectedMarkdown} />
 		<div class="container">
 			<TextContainer {MarkdownFiles} />
-			<SvgContainer {graphData} />
+			<SvgContainer />
 		</div>
 	{/if}
 </main>

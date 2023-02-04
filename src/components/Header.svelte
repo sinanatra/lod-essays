@@ -4,8 +4,8 @@
     export let MarkdownFiles;
 
     function selectMarkdown(event, id) {
-        selectedMarkdown.set(MarkdownFiles.filter((d) => d.id === id));
-        graphData.set(createTriplets(...$selectedMarkdown));
+        selectedMarkdown.set(MarkdownFiles.filter((d) => d.id === id)[0]);
+        graphData.set(createTriplets($selectedMarkdown));
     }
 </script>
 
