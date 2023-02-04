@@ -103,7 +103,7 @@
 
     function openLinks(node) {
         // "z-index" on the selected links
-        if (nodes) {
+        if (node) {
             links = links.sort((a, b) => {
                 if (
                     a.source.id === node.id ||
