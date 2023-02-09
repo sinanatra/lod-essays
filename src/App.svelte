@@ -7,6 +7,7 @@
 	import TextContainer from "./components/TextContainer.svelte";
 	import SvgContainer from "./components/SvgContainer.svelte";
 	import Header from "./components/Header.svelte";
+	import ItemDetail from "./components/ItemDetail.svelte";
 
 	let MarkdownFiles;
 
@@ -37,6 +38,7 @@
 		<div class="container">
 			<TextContainer {MarkdownFiles} />
 			<SvgContainer />
+			<!-- <ItemDetail /> -->
 		</div>
 	{/if}
 </main>

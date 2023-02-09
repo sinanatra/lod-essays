@@ -7,7 +7,7 @@
     let width = 0;
     let height = 0;
     let transform = d3.zoomIdentity;
-    let svg, links, nodes, simulation, firstNodeId, nodeToCenter;
+    let svg, links, nodes, simulation;
 
     const zoom = d3
         .zoom()
@@ -19,17 +19,29 @@
     $: {
         links = [
             ...$graphData.links.map((d) =>
-                Object.assign(d, { color: "#f1f1f1" })
+                Object.assign(d, { class: "grey" })
             ),
         ];
-        nodes = [...$graphData.nodes.map((d) => Object.create(d))];
+        nodes = [...$graphData.nodes.map((d) => Object.assign({}, d))];
         observe();
         runSimulation();
     }
 
+    $: {
+        if ($visibleLinks.length > 0) {
+            zoomToNode($visibleLinks[0]);
+        }
+    }
+
+    $: {
+        if ($selectedNode.length > 0) {
+            zoomToNode($selectedNode);
+        }
+    }
+
     onMount(() => {
-        // zoomToNode($visibleLinks[0]);
         runSimulation();
+        observe();
     });
 
     onDestroy(() => {
@@ -49,40 +61,25 @@
             // .force("charge", d3.forceManyBody(50))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .force("collision", d3.forceCollide().radius(150))
+            // .force("x", d3.forceX().strength(1))
             .on("tick", simulationUpdate);
-    }
-
-    $: {
-        if ($visibleLinks.length > 0) {
-            zoomToNode($visibleLinks[0]);
-        }
-    }
-
-    $: {
-        if ($selectedNode.length > 0) {
-            zoomToNode($selectedNode);
-        }
     }
 
     function zoomToNode(item) {
         if (nodes.length > 0) {
             const nodeToZoom = nodes.find((node) => node.id === item);
             if (nodeToZoom) {
-                const zoomTransform = d3.zoomIdentity
-                    .translate(
-                        width / 2 - nodeToZoom.x,
-                        height / 2 - nodeToZoom.y
-                    )
-                    .scale(1);
-
+                const zoomTransform = d3.zoomIdentity.translate(
+                    width / 2 - nodeToZoom.x,
+                    height / 2 - nodeToZoom.y
+                );
                 d3.select(svg)
                     .transition()
                     .duration(500)
-                    // .ease(d3.easeBounceIn)
                     .call(zoom.transform, zoomTransform);
-                // simulationUpdate();
+                simulationUpdate();
             }
-            openLinks(nodeToZoom);
+            highlightLinks(nodeToZoom);
         }
     }
 
@@ -101,9 +98,10 @@
         return `M${d.source.x},${d.source.y} A${r},${r} 0 0,1 ${d.target.x},${d.target.y}`;
     }
 
-    function openLinks(node) {
+    function highlightLinks(node) {
         // "z-index" on the selected links
         if (node) {
+            $selectedNode = node;
             links = links.sort((a, b) => {
                 if (
                     a.source.id === node.id ||
@@ -117,9 +115,9 @@
             });
             links.forEach((link) => {
                 if (link.source.id === node.id || link.target.id === node.id) {
-                    link.color = "#919191";
+                    link.class = "grey-highlite";
                 } else {
-                    link.color = "#f2f2f2";
+                    link.class = "grey";
                 }
             });
             simulationUpdate();
@@ -130,7 +128,7 @@
 <div class="graph" bind:clientWidth={width} bind:clientHeight={height}>
     <svg bind:this={svg} {width} {height}>
         {#each links as link}
-            <g stroke={link.color} stroke-width="1" fill="none">
+            <g class={link.class} stroke-width="1" fill="none">
                 <path
                     d={linkArc(link)}
                     data-attr={link.source.id}
@@ -141,21 +139,21 @@
 
         {#each nodes as node}
             <g
-                on:click={() => openLinks(node)}
+                on:dblclick={highlightLinks(node)}
+                on:click={() => highlightLinks(node)}
                 on:keydown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                        openLinks(node);
+                        highlightLinks(node);
                     }
                 }}
                 transform="translate({transform.x} {transform.y -
                     5}) scale({transform.k} {transform.k})"
-                class="label"
                 data-attr={node.id}
-                color={$visibleLinks.includes(node.id)
-                    ? "blue"
+                class={$visibleLinks.includes(node.id)
+                    ? "label blue"
                     : $allLinks.includes(node.id)
-                    ? "black"
-                    : "#919191"}
+                    ? "label black"
+                    : "label grey"}
             >
                 <foreignObject
                     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"
@@ -173,7 +171,7 @@
 
 <style>
     .graph {
-        flex: 2;
+        flex: 1.5;
         user-select: none;
         cursor: move;
         cursor: grab;

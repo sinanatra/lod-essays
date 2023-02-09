@@ -12,16 +12,23 @@ export async function extractLinks(markdown) {
     const links = [];
     let match;
     while ((match = regex.exec(markdown))) {
-        const url = match[2].includes(Api)
-            ? match[2]
-            : `${Api}/resources/${match[2]}`;
-        const response = await fetch(url);
-        const json = await response.json();
-        links.push({
-            label: match[1],
-            url: url,
-            data: json,
-        });
+        // ignore normal links
+        if (match[2].includes("http")) {
+            continue
+        }
+        else {
+            const url = match[2].includes(Api)
+                ? match[2]
+                : `${Api}/resources/${match[2]}`;
+            const response = await fetch(url);
+            const json = await response.json();
+            links.push({
+                label: match[1],
+                url: url,
+                data: json,
+            });
+        }
+
     }
     return links;
 }
@@ -73,27 +80,28 @@ export function parseJSONLD(jsonLD) {
 }
 
 export function observe() {
-    // // observer changes when scrolling the text
+    let visible = new Set();
     const observer = new IntersectionObserver((entries, observer) => {
-        let visible = [];
         entries.forEach((entry) => {
-            // save all links in allLinks
+            const newItem = entry.target.getAttribute("data-id");
+            // Update the allLinks array to include the new item if it doesn't already exist
             allLinks.update((items) => {
-                const newItem = entry.target.getAttribute("data-id");
                 if (!items.includes(newItem)) {
                     items.push(newItem);
                 }
                 return items;
             });
-            // save only the visible links in visibleLinks
+            // If the current entry is intersecting with the viewport, add it to the visible set
             if (entry.isIntersecting) {
-                visible.push(entry.target.getAttribute("data-id"));
+                visible.add(newItem);
+                // If the current entry is not intersecting with the viewport, remove it from the visible set
+            } else {
+                visible.delete(newItem);
             }
         });
-        // $visibleLinks = [...visible];
-        visibleLinks.set( [...visible])
-
+        visibleLinks.set([...visible]);
     });
-    const links = document.querySelectorAll(".markdown a");
+
+    const links = document.querySelectorAll(".markdown a[data-id]");
     links.forEach((link) => observer.observe(link));
 }

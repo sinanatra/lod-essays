@@ -1,6 +1,7 @@
 <script>
     import { selectedMarkdown, graphData } from "../stores";
     import { createTriplets } from "../functions.js";
+
     export let MarkdownFiles;
 
     function selectMarkdown(event, id) {
@@ -11,7 +12,9 @@
 
 <header>
     {#each MarkdownFiles as file}
-        <button on:click={(e) => selectMarkdown(e, file.id)}>{file.title}</button>
+        <button on:click={(e) => selectMarkdown(e, file.id)}
+            >{file.title}</button
+        >
     {/each}
 </header>
 
