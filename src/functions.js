@@ -22,11 +22,37 @@ export async function extractLinks(markdown) {
                 : `${Api}/resources/${match[2]}`;
             const response = await fetch(url);
             const json = await response.json();
-            links.push({
-                label: match[1],
-                url: url,
-                data: json,
-            });
+
+            // load item sets
+            if (json["o:items"]) {
+                links.push({
+                    label: match[1],
+                    url: url,
+                    data: json,
+                });
+                let items = json["o:items"]["@id"]
+                const responseSet = await fetch(items);
+                const jsonSet = await responseSet.json();
+                jsonSet.forEach(item => {
+                    links.push({
+                        label: item["o:title"],
+                        url: item["@id"],
+                        data: item,
+                        set: {
+                            id: json["o:id"],
+                            title: json["o:title"]
+                        }
+                    });
+                });
+            }
+            // load normal item
+            else {
+                links.push({
+                    label: match[1],
+                    url: url,
+                    data: json,
+                });
+            }
         }
 
     }
@@ -35,10 +61,12 @@ export async function extractLinks(markdown) {
 
 export function createTriplets(data) {
     let allTriplets = [];
+
     // Open all links and create a new object with the triples generated
     for (let i = 0; i < data.items.length; i++) {
         let jsonLD = data.items[i].data;
-        let triplets = parseJSONLD(jsonLD);
+        let set = data.items[i].set || null;
+        let triplets = parseJSONLD(jsonLD, set);
         allTriplets = [...allTriplets, ...triplets];
     }
 
@@ -57,19 +85,36 @@ export function createTriplets(data) {
     }
 }
 
-export function parseJSONLD(jsonLD) {
+export function parseJSONLD(jsonLD, set) {
     var triplets = [];
-    var source = jsonLD["@id"].replace("/items/", "/resources/");
+    var source = `${Api}/resources/${jsonLD["o:id"]}`;
+
+    if (set) {
+        triplets.push(
+            {
+                source: `${Api}/resources/${set.id}`,
+                target: source,
+                title: jsonLD["o:title"]
+            },
+        );
+    }
     var parseRecursive = function (obj) {
         for (var key in obj) {
             if (key === "@id" && obj[key].startsWith(Api) && (obj["o:title"] || obj.display_title)) {
-                var target = obj[key].replace("/items/", "/resources/");
+                var splitId = obj[key].split("/")
+                var id = splitId[splitId.length - 1];
+
+                // var target = obj[key].replace("/items_sets/", "/resources/").replace("/items/", "/resources/");
+                var target = `${Api}/resources/${id}`;
                 var title = obj["o:title"] || obj.display_title;
+
                 triplets.push({
                     source: source,
                     target: target,
                     title: title
                 });
+
+
             } else if (typeof obj[key] === "object") {
                 parseRecursive(obj[key]);
             }
@@ -81,8 +126,15 @@ export function parseJSONLD(jsonLD) {
 
 export function observe() {
     let visible = new Set();
+    let scrollingDirection;
+
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach((entry) => {
+            // Determine the direction of the scrolling
+            if (entry.boundingClientRect.y !== 0) {
+                scrollingDirection = entry.boundingClientRect.y > entry.rootBounds.y ? "down" : "up";
+            }
+
             const newItem = entry.target.getAttribute("data-id");
             // Update the allLinks array to include the new item if it doesn't already exist
             allLinks.update((items) => {
@@ -93,12 +145,17 @@ export function observe() {
             });
             // If the current entry is intersecting with the viewport, add it to the visible set
             if (entry.isIntersecting) {
-                visible.add(newItem);
+                if (scrollingDirection === "down") {
+                    visible.add(newItem);
+                } else {
+                    visible = new Set([newItem, ...visible]);
+                }
                 // If the current entry is not intersecting with the viewport, remove it from the visible set
             } else {
                 visible.delete(newItem);
             }
         });
+        // console.log([...visible])
         visibleLinks.set([...visible]);
     });
 

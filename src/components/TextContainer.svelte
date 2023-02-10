@@ -2,20 +2,19 @@
     import { marked } from "marked";
     import { Api } from "../config";
     import { selectedMarkdown, selectedNode } from "../stores";
-    import { onMount } from "svelte";
-    import { observe } from "../functions.js";
 
     const renderer = new marked.Renderer();
     let scrollContainer;
+
     renderer.link = (href, title, text) => {
         if (href.includes("http")) {
             return `<a class="external" target="_blank" href="${href}" title="${text}">${text}</a>`;
         } else {
             let img = getMainImage(`${Api}/resources/${href}`);
             if (img) {
-                return `<a data-id="${Api}/resources/${href}" title="${text}">${text}(${href})</a><img src="${img}" alt="${text}"></img>`;
+                return `<a class="node-highlite" data-id="${Api}/resources/${href}" title="${text}">${text}(${href})</a><img src="${img}" alt="${text}"></img>`;
             } else {
-                return `<a data-id="${Api}/resources/${href}" title="${text}">${text}(${href})</a>`;
+                return `<a class="node-highlite" data-id="${Api}/resources/${href}" title="${text}">${text}(${href})</a>`;
             }
         }
     };
@@ -35,9 +34,6 @@
     }
 
     $: html = marked($selectedMarkdown.markdown, { renderer });
-    onMount(() => {
-        observe();
-    });
 </script>
 
 <div

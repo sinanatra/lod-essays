@@ -32,13 +32,13 @@
 
 <main>
 	{#if MarkdownFiles === undefined}
-		<p class="loading">Loading Essays...</p>
+		<h4 class="loading">Loading Essays...</h4>
 	{:else}
 		<Header {MarkdownFiles} {selectedMarkdown} />
 		<div class="container">
 			<TextContainer {MarkdownFiles} />
+			<ItemDetail />
 			<SvgContainer />
-			<!-- <ItemDetail /> -->
 		</div>
 	{/if}
 </main>

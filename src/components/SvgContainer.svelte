@@ -19,7 +19,7 @@
     $: {
         links = [
             ...$graphData.links.map((d) =>
-                Object.assign(d, { class: "grey" })
+                Object.assign(d, { class: "link" })
             ),
         ];
         nodes = [...$graphData.nodes.map((d) => Object.assign({}, d))];
@@ -40,8 +40,8 @@
     }
 
     onMount(() => {
-        runSimulation();
         observe();
+        runSimulation();
     });
 
     onDestroy(() => {
@@ -115,9 +115,9 @@
             });
             links.forEach((link) => {
                 if (link.source.id === node.id || link.target.id === node.id) {
-                    link.class = "grey-highlite";
+                    link.class = "link-highlite";
                 } else {
-                    link.class = "grey";
+                    link.class = "link";
                 }
             });
             simulationUpdate();
@@ -150,10 +150,10 @@
                     5}) scale({transform.k} {transform.k})"
                 data-attr={node.id}
                 class={$visibleLinks.includes(node.id)
-                    ? "label blue"
+                    ? "label node-highlite"
                     : $allLinks.includes(node.id)
-                    ? "label black"
-                    : "label grey"}
+                    ? "label node"
+                    : "label link"}
             >
                 <foreignObject
                     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"
