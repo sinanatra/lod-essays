@@ -18,38 +18,47 @@
             }
         }
     };
+
     // Add a custom rule for parsing footnotes
     const footnoteRE = /\[\^([^\]]+)\]/g;
+    let nextFootNoteId = 1;
+    let footnotes = {};
+
     renderer.text = (text) => {
         let output = text;
-        let footnotes = [];
-        let nextFootNoteId = 1;
 
         // Find all footnotes in the text
         output = output.replace(footnoteRE, (match, noteId) => {
             let footnote = footnotes[noteId];
 
             if (!footnote) {
-                footnote = { id: nextFootNoteId++, text: noteId };
+                footnote = { id: nextFootNoteId, text: noteId };
                 footnotes[noteId] = footnote;
+                nextFootNoteId++;
             }
-            return `<sup class="footnote-reference" id="footnote-${footnote.id}"><a href="#footnote-${footnote.id}">${footnote.id}</a></sup>`;
+
+            return `<sup class="footnote-reference" id="footnote-reference-${footnote.id}"><a href="#footnote-${footnote.id}">${footnote.id}</a></sup>`;
         });
-
-        // Append the footnotes to the end of the output
-        // let footnoteSection = "";
-        // for (let footnote of footnotes) {
-        //     if (footnote) {
-        //         footnoteSection += `<li id="footnote-${footnote.id}">${footnote.text}</li>`;
-        //     }
-        // }
-
-        // if (footnoteSection) {
-        //     output += `<div class="footnotes"><ol>${footnoteSection}</ol></div>`;
-        // }
 
         return output;
     };
+    const htmlPromise = new Promise((resolve) => {
+        const html = marked($selectedMarkdown.markdown, { renderer });
+        resolve(html);
+    });
+
+    let biblio;
+    htmlPromise.then((html) => {
+        // Render the footnotes
+        const footnotesHTML = Object.values(footnotes)
+            .map((footnote) => {
+                return `<li id="footnote-${footnote.id}">${footnote.text} <a href="#footnote-reference-${footnote.id}">&#8617;</a></li>`;
+            })
+            .join("");
+
+        biblio = `<ol class="footnotes">${footnotesHTML}</ol>`;
+    });
+
     $: html = marked($selectedMarkdown.markdown, { renderer });
 
     function getMainImage(id) {
@@ -62,7 +71,9 @@
 
     function handleClick(event) {
         if (event.target.tagName === "A") {
-            $selectedNode = event.target.getAttribute("data-id");
+            if (event.target.getAttribute("data-id")){
+                $selectedNode = event.target.getAttribute("data-id");
+            }
         }
     }
 </script>
@@ -78,6 +89,7 @@
     }}
 >
     {@html html}
+    <div class="biblio">{@html biblio}</div>
 </div>
 
 <style>

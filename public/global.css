@@ -68,14 +68,18 @@ p {
 	font-size: 1.4rem;
 }
 
+.biblio { 
+	font-size: .875rem;
+}
+
 .markdown h1, .markdown h2, .markdown h3,.markdown h4 {
 	text-align: center;
 	border-bottom: 1px solid var(--grey);
 	margin: 2rem 0 .5rem 0;
 }
 
-.markdown > p, .markdown blockquote, .markdown ul {
-	font-family: "Redaction", sans-serif;
+.markdown > p, .markdown blockquote, .markdown ul, .biblio {
+	font-family: "Redaction", serif;
 }
 
 .markdown li {
