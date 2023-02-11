@@ -12,16 +12,13 @@
 
 <header>
     {#each MarkdownFiles as file}
-        <button on:click={(e) => selectMarkdown(e, file.id)}
-            >{file.title}</button
-        >
+        <button on:click={(e) => selectMarkdown(e, file.id)}>{file.title}</button>
     {/each}
 </header>
 
 <style>
     header {
         display: flex;
-        background: gainsboro;
         font-size: 1.25rem;
     }
 

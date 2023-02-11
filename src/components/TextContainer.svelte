@@ -3,8 +3,8 @@
     import { Api } from "../config";
     import { selectedMarkdown, selectedNode } from "../stores";
 
-    const renderer = new marked.Renderer();
     let scrollContainer;
+    const renderer = new marked.Renderer();
 
     renderer.link = (href, title, text) => {
         if (href.includes("http")) {
@@ -18,6 +18,39 @@
             }
         }
     };
+    // Add a custom rule for parsing footnotes
+    const footnoteRE = /\[\^([^\]]+)\]/g;
+    renderer.text = (text) => {
+        let output = text;
+        let footnotes = [];
+        let nextFootNoteId = 1;
+
+        // Find all footnotes in the text
+        output = output.replace(footnoteRE, (match, noteId) => {
+            let footnote = footnotes[noteId];
+
+            if (!footnote) {
+                footnote = { id: nextFootNoteId++, text: noteId };
+                footnotes[noteId] = footnote;
+            }
+            return `<sup class="footnote-reference" id="footnote-${footnote.id}"><a href="#footnote-${footnote.id}">${footnote.id}</a></sup>`;
+        });
+
+        // Append the footnotes to the end of the output
+        // let footnoteSection = "";
+        // for (let footnote of footnotes) {
+        //     if (footnote) {
+        //         footnoteSection += `<li id="footnote-${footnote.id}">${footnote.text}</li>`;
+        //     }
+        // }
+
+        // if (footnoteSection) {
+        //     output += `<div class="footnotes"><ol>${footnoteSection}</ol></div>`;
+        // }
+
+        return output;
+    };
+    $: html = marked($selectedMarkdown.markdown, { renderer });
 
     function getMainImage(id) {
         let match = $selectedMarkdown.items.filter((d) => d.url == id);
@@ -32,8 +65,6 @@
             $selectedNode = event.target.getAttribute("data-id");
         }
     }
-
-    $: html = marked($selectedMarkdown.markdown, { renderer });
 </script>
 
 <div
@@ -51,14 +82,12 @@
 
 <style>
     .markdown {
-        flex: 2;
+        flex: 3;
         min-width: 250px;
         font-size: 1.5rem;
         padding: 8px;
-        padding-right: 1.5rem;
+        padding-right: 0.5rem;
         padding-bottom: 150px;
-        margin-right: 0.5rem;
-        border-right: 1px solid;
         overflow: scroll;
     }
 </style>

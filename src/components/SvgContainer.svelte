@@ -70,8 +70,8 @@
             const nodeToZoom = nodes.find((node) => node.id === item);
             if (nodeToZoom) {
                 const zoomTransform = d3.zoomIdentity.translate(
-                    width / 2 - nodeToZoom.x,
-                    height / 2 - nodeToZoom.y
+                    width / 4 - nodeToZoom.x,
+                    height / 6 - nodeToZoom.y
                 );
                 d3.select(svg)
                     .transition()
@@ -171,7 +171,7 @@
 
 <style>
     .graph {
-        flex: 1.5;
+        flex: 2;
         user-select: none;
         cursor: move;
         cursor: grab;

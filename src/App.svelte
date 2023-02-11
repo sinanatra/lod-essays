@@ -36,9 +36,9 @@
 	{:else}
 		<Header {MarkdownFiles} {selectedMarkdown} />
 		<div class="container">
+			<SvgContainer />
 			<TextContainer {MarkdownFiles} />
 			<ItemDetail />
-			<SvgContainer />
 		</div>
 	{/if}
 </main>
@@ -50,7 +50,7 @@
 	}
 	.container {
 		display: flex;
-		height: 100vh;
+		height: calc(100vh - 20px);
 	}
 
 	:global(a) {

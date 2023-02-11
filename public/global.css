@@ -4,25 +4,40 @@ html, body {
 	height: 100%;
 	font-size: 14px;
 }
+
+:root {
+	--node-highlite: blue;
+	--grey: #2d2d2d;
+	--light-grey: #cbcbcb;
+	--white: #efefef;
+	--black: #202020;
+}
+
 /* Colours */
+.node {
+	color: var(--black);
+	stroke: var(--black);
+}
 
 .node-highlite {
-	color: blue;
+	color: var(--node-highlite);
 }
 
-.node{
-	color: black;
-	stroke: black;
+.link-highlite , .node-highlite_secondary {
+	color: var(--grey);
+	stroke: var(--grey);
+	stroke-width: 1;
 }
 
-.link-highlite{
-	color: #696969;
-	stroke: #696969;
+.link {
+	color: var(--light-grey);
+	stroke: var(--light-grey);
+	stroke-width: .5;
 }
 
-.link{
-	color: #e0e0e0;
-	stroke: #e0e0e0;
+header {
+	height: 20px;
+	background-color: var(--light-grey);
 }
 
 /* Typography */
@@ -30,7 +45,7 @@ html, body {
 h1,h2,h3,h4,p {
 	font-weight: normal;
 	margin: 0;
-	padding: 0;
+	padding: .2rem;
 }
 
 h1 {
@@ -50,12 +65,33 @@ h4 {
 }
 
 p {
-	font-size: 2rem;
+	font-size: 1.4rem;
+}
+
+.markdown h1, .markdown h2, .markdown h3,.markdown h4 {
+	text-align: center;
+	border-bottom: 1px solid var(--grey);
+	margin: 2rem 0 .5rem 0;
+}
+
+.markdown > p, .markdown blockquote, .markdown ul {
+	font-family: "Redaction", sans-serif;
+}
+
+.markdown li {
+	padding-bottom: 1rem;
 }
 
 .markdown > p {
-	text-indent: 1rem;
+	text-indent: 3rem;
 }
+
+sup a {
+	text-decoration: none;
+	color: var(--node-highlite);
+	padding-left: .2rem;
+}
+
 
 blockquote {
 	font-size: 1rem;
@@ -68,8 +104,7 @@ blockquote {
 body {
 	margin: 0;
 	padding: 0;
-	/* font-family: "Redaction", sans-serif; */
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-family: "Authentic", sans-serif;
 
 }
 
@@ -83,13 +118,17 @@ a {
 }
 
 .markdown img {
-	width: 2em;
-	height: 2em;
+	width: 1.2em;
+	height: 1.2em;
+	line-height: 2;
 	vertical-align: middle;
 	object-fit: contain;
 	padding: 0 0.25rem;
 }
 
+.detail {
+	background-color: #fcfcfc;
+}
 /* Imports */
 
 @font-face {
@@ -107,6 +146,23 @@ a {
 	
 @font-face {
 	font-family: "Redaction";
-	font-style:italic;
-	src: url("./fonts/Redaction-Bold.woff2") format("woff2")
+	font-style: italic;
+	src: url("./fonts/Redaction-Italic.woff2") format("woff2")
+}
+
+@font-face {
+	font-family: "Authentic";
+	font-style: normal;
+	src: url("./fonts/AUTHENTICSans-90.woff") format("woff");
+}
+
+/* Minor changes */
+
+::-webkit-scrollbar {
+	display: none;
+}
+  
+::selection {
+	background-color: var(--node-highlite);
+	color: var(--white);
 }

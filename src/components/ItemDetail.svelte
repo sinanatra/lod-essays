@@ -8,13 +8,19 @@
 
     onMount(async () => {
         selectedNode.subscribe(async (value) => {
-            // Check if the selection has already been made
             if (selections.has(value.id)) {
+                // Check if the selection has already been made
                 selection = selections.get(value.id); // Use the cached selection if it exists
             } else {
-                const response = await fetch(value.id);
-                selection = await response.json();
-                selections.set(value.id, selection); // Store the new selection in the Map
+                if (value.id) {
+                    try {
+                        const response = await fetch(value.id);
+                        selection = await response.json();
+                        selections.set(value.id, selection); // Store the new selection in the Map
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
             }
         });
     });
@@ -38,9 +44,8 @@
     .detail {
         flex: 1;
         min-width: 250px;
-        padding: 8px 0;
+        padding: 8px;
         overflow: scroll;
-        border-right: 1px solid;
     }
 
     img {
