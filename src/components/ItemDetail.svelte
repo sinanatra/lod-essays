@@ -1,7 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import { selectedNode } from "../stores.js";
-    import { fetchFile } from "../functions.js";
+    import { parseProperties } from "../functions.js";
 
     let selections = new Map(); // Use a Map to store the selections and their keys
     let selection;
@@ -24,6 +24,12 @@
             }
         });
     });
+
+    let parsedProperties;
+    $: {
+        parsedProperties = parseProperties(selection);
+        console.log(parsedProperties)
+    }
 </script>
 
 <div class="detail">
@@ -37,6 +43,12 @@
                 alt={selection["o:title"]}
             />
         {/if}
+        {#each parsedProperties as property}
+            {#if property != undefined}
+                <h4>{property.property}:</h4>
+                <h4><em>{property.title}</em></h4>
+            {/if}
+        {/each}
     {/if}
 </div>
 

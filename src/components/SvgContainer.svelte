@@ -11,19 +11,18 @@
 
     const zoom = d3
         .zoom()
-        .scaleExtent([1 / 4, 1])
+        .scaleExtent([1 / 8, 1 / 1])
         .on("zoom", zoomed);
 
     $: d3.select(svg).call(zoom);
 
     $: {
         links = [
-            ...$graphData.links.map((d) =>
-                Object.assign(d, { class: "link" })
-            ),
+            ...$graphData.links.map((d) => Object.assign(d, { class: "link" })),
         ];
-        nodes = [...$graphData.nodes.map((d) => Object.assign({}, d))];
-        observe();
+        nodes = [
+            ...$graphData.nodes.map((d) => Object.assign(d, { class: "node" })),
+        ];
         runSimulation();
     }
 
@@ -40,7 +39,7 @@
     }
 
     onMount(() => {
-        observe();
+        // observe();
         runSimulation();
     });
 
@@ -63,34 +62,39 @@
             .force("collision", d3.forceCollide().radius(150))
             // .force("x", d3.forceX().strength(1))
             .on("tick", simulationUpdate);
+        observe();
     }
 
     function zoomToNode(item) {
         if (nodes.length > 0) {
             const nodeToZoom = nodes.find((node) => node.id === item);
             if (nodeToZoom) {
-                const zoomTransform = d3.zoomIdentity.translate(
-                    width / 4 - nodeToZoom.x,
-                    height / 6 - nodeToZoom.y
-                );
+                const zoomTransform = d3.zoomIdentity
+                    .scale(0.8)
+                    .translate(
+                        width / 4 - nodeToZoom.x,
+                        height / 6 - nodeToZoom.y
+                    );
+
                 d3.select(svg)
                     .transition()
                     .duration(500)
                     .call(zoom.transform, zoomTransform);
+
                 simulationUpdate();
             }
             highlightLinks(nodeToZoom);
         }
     }
 
-    function simulationUpdate() {
-        nodes = [...nodes];
-        links = [...links];
-    }
-
     function zoomed(currentEvent) {
         transform = currentEvent.transform;
         simulationUpdate();
+    }
+
+    function simulationUpdate() {
+        nodes = [...nodes];
+        links = [...links];
     }
 
     function linkArc(d) {
@@ -136,9 +140,15 @@
                 />
             </g>
         {/each}
-
         {#each nodes as node}
             <g
+                class={$selectedNode.id == node.id
+                    ? "label selection"
+                    : $visibleLinks.includes(node.id)
+                    ? "label node-highlite"
+                    : $allLinks.includes(node.id)
+                    ? "label node"
+                    : "label link"}
                 on:dblclick={highlightLinks(node)}
                 on:click={() => highlightLinks(node)}
                 on:keydown={(e) => {
@@ -146,21 +156,17 @@
                         highlightLinks(node);
                     }
                 }}
-                transform="translate({transform.x} {transform.y -
-                    5}) scale({transform.k} {transform.k})"
+                transform="translate({transform.x}
+                {transform.y - 5}) scale({transform.k}
+                {transform.k})"
                 data-attr={node.id}
-                class={$visibleLinks.includes(node.id)
-                    ? "label node-highlite"
-                    : $allLinks.includes(node.id)
-                    ? "label node"
-                    : "label link"}
             >
                 <foreignObject
                     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"
                     width="300"
                     height="150"
-                    x={node.x}
-                    y={node.y}
+                    x={node.x - 2}
+                    y={node.y - 2}
                 >
                     <div class="title">{node.title}</div>
                 </foreignObject>
@@ -184,7 +190,6 @@
     }
 
     .title {
-        background: white;
         padding: 1px;
         width: fit-content;
     }

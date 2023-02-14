@@ -71,9 +71,22 @@
 
     function handleClick(event) {
         if (event.target.tagName === "A") {
-            if (event.target.getAttribute("data-id")){
+            if (event.target.getAttribute("data-id")) {
                 $selectedNode = event.target.getAttribute("data-id");
+                event.target.classList.toggle("selected");
             }
+        }
+    }
+
+    $: if ($selectedNode != null) {
+        document.querySelectorAll("a[data-id]").forEach((link) => {
+            link.classList.remove("selection");
+        });
+        let selected = document.querySelector(
+            `a[data-id="${$selectedNode.id}"]`
+        );
+        if (selected) {
+            selected.classList.add("selection");
         }
     }
 </script>
@@ -94,7 +107,7 @@
 
 <style>
     .markdown {
-        flex: 3;
+        flex: 2;
         min-width: 250px;
         font-size: 1.5rem;
         padding: 8px;
