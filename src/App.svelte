@@ -36,8 +36,8 @@
 	{:else}
 		<Header {MarkdownFiles} {selectedMarkdown} />
 		<div class="container">
-			<SvgContainer />
 			<TextContainer {MarkdownFiles} />
+			<SvgContainer />
 			<ItemDetail />
 		</div>
 	{/if}
