@@ -5,7 +5,7 @@ ghpages.publish(
     {
         branch: 'gh-pages',
         silent: true,
-        repo: 'https://' + process.env.GITHUB_TOKEN + '@github.com:sinanatra/lod-essays.git',
+        repo: 'https://' + process.env.TOKEN + '@github.com:sinanatra/lod-essays.git',
         user: {
             name: 'Giacomo Nanni',
             email: 'gn.nanni@gmail.com'
