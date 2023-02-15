@@ -86,8 +86,8 @@ export function createTriplets(data) {
 }
 
 export function parseJSONLD(jsonLD, set) {
-    var triplets = [];
-    var source = `${Api}/resources/${jsonLD["o:id"]}`;
+    let triplets = [];
+    let source = `${Api}/resources/${jsonLD["o:id"]}`;
 
     if (set) {
         triplets.push(
@@ -98,20 +98,21 @@ export function parseJSONLD(jsonLD, set) {
             },
         );
     }
-    var parseRecursive = function (obj) {
-        for (var key in obj) {
+    let parseRecursive = function (obj) {
+        for (let key in obj) {
             if (key === "@id" && obj[key].startsWith(Api) && (obj["o:title"] || obj.display_title)) {
-                var splitId = obj[key].split("/")
-                var id = splitId[splitId.length - 1];
+                let splitId = obj[key].split("/")
+                let id = splitId[splitId.length - 1];
 
-                // var target = obj[key].replace("/items_sets/", "/resources/").replace("/items/", "/resources/");
-                var target = `${Api}/resources/${id}`;
-                var title = obj["o:title"] || obj.display_title;
+                // let target = obj[key].replace("/items_sets/", "/resources/").replace("/items/", "/resources/");
+                let target = `${Api}/resources/${id}`;
+                let title = obj["o:title"] || obj.display_title;
 
                 triplets.push({
                     source: source,
                     target: target,
-                    title: title
+                    title: title,
+                    property: obj["property_label"]
                 });
 
 
@@ -123,6 +124,51 @@ export function parseJSONLD(jsonLD, set) {
     parseRecursive(jsonLD);
     return triplets;
 }
+
+export function parseProperties(obj) {
+    if (obj) {
+
+        let triplets = [];
+        let source = `${Api}/resources/${obj["o:id"]}`;
+        let propertyLabel;
+        let checkLabel = false
+        let parseRecursive = function (obj) {
+
+            for (let key in obj) {
+
+                // check reverted properties 
+                if (checkLabel == true) {
+                    propertyLabel = key
+                    checkLabel = false
+                }
+
+                if (key == "@reverse") {
+                    checkLabel = true
+                }
+
+                if (key === "@id" && obj[key].startsWith(Api) && (obj["o:title"] || obj.display_title)) {
+                    let splitId = obj[key].split("/")
+                    let id = splitId[splitId.length - 1];
+
+                    let target = `${Api}/resources/${id}`;
+                    let title = obj["o:title"] || obj.display_title;
+
+                    triplets.push({
+                        source: source,
+                        target: target,
+                        title: title,
+                        property: obj["property_label"] || propertyLabel
+                    });
+
+                } else if (typeof obj[key] === "object") {
+                    parseRecursive(obj[key]);
+                }
+            }
+        };
+        parseRecursive(obj);
+        return triplets;
+    }
+};
 
 export function observe() {
     let visible = new Set();
