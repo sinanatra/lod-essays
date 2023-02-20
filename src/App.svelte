@@ -18,7 +18,7 @@
 					.split("-")
 					.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 					.join(" ");
-				const url = `/essays/${item}.md`;
+				const url = `./essays/${item}.md`;
 				const markdown = await fetchFile(url);
 				const items = await extractLinks(markdown);
 				const id = uuidv4();
@@ -36,9 +36,9 @@
 	{:else}
 		<Header {MarkdownFiles} {selectedMarkdown} />
 		<div class="container">
-			<TextContainer {MarkdownFiles} />
 			<SvgContainer />
-			<ItemDetail />
+			<TextContainer {MarkdownFiles} />
+			<!-- <ItemDetail /> -->
 		</div>
 	{/if}
 </main>
