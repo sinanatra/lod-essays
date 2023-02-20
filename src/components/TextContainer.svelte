@@ -1,7 +1,7 @@
 <script>
     import { marked } from "marked";
     import { Api } from "../config";
-    import { selectedMarkdown, selectedNode } from "../stores";
+    import { selectedMarkdown, selectedNode, scrolled } from "../stores";
 
     let scrollContainer;
     const renderer = new marked.Renderer();
@@ -89,11 +89,16 @@
             selected.classList.add("selection");
         }
     }
+
+    function handleScroll(event) {
+        $scrolled = true;
+    }
 </script>
 
 <div
     class="markdown"
     bind:this={scrollContainer}
+    on:scroll={handleScroll}
     on:click={handleClick}
     on:keydown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
