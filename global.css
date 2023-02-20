@@ -30,7 +30,7 @@ html, body {
 
 .link-highlite , .node-highlite_secondary {
 	color: var(--selection);
-	stroke: var(--selection);
+	stroke: var(--light-grey);
 	/* stroke-width: 5; */
 	/* stroke-opacity: .5; */
 }
@@ -119,8 +119,8 @@ blockquote {
 body {
 	margin: 0;
 	padding: 0;
-	font-family: "Authentic", sans-serif;
-
+	/* font-family: "Authentic", sans-serif; */
+	font-family: "Redaction", serif;
 }
 
 a {
