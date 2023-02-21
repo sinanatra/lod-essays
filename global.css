@@ -147,6 +147,7 @@ a {
 
 .detail {
 	background-color: #fcfcfc;
+	box-shadow:0 9px 10px 1px black;
 }
 
 foreignObject img {
