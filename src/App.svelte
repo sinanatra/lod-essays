@@ -1,13 +1,13 @@
 <script>
 	import { onMount } from "svelte";
+	import { fade, slide, fly } from "svelte/transition";
 	import { Files } from "./config.js";
 	import { fetchFile, extractLinks, createTriplets } from "./functions.js";
-	import { selectedMarkdown, graphData } from "./stores.js";
+	import { selectedMarkdown, graphData, showItemDetail } from "./stores.js";
 	import { v4 as uuidv4 } from "uuid";
 	import TextContainer from "./components/TextContainer.svelte";
-	import SvgContainer from "./components/SvgContainer.svelte";
 	import Header from "./components/Header.svelte";
-	import ItemDetail from "./components/ItemDetail.svelte";
+	import Items from "./components/Items.svelte";
 
 	let MarkdownFiles;
 
@@ -36,9 +36,8 @@
 	{:else}
 		<Header {MarkdownFiles} {selectedMarkdown} />
 		<div class="container">
-			<SvgContainer />
+			<Items />
 			<TextContainer {MarkdownFiles} />
-			<!-- <ItemDetail /> -->
 		</div>
 	{/if}
 </main>
@@ -51,6 +50,7 @@
 	.container {
 		display: flex;
 		height: calc(100vh - 20px);
+		overflow: hidden;
 	}
 
 	:global(a) {
