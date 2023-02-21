@@ -61,7 +61,6 @@ export async function extractLinks(markdown) {
 
 export function createTriplets(data) {
     let allTriplets = [];
-
     // Open all links and create a new object with the triples generated
     for (let i = 0; i < data.items.length; i++) {
         let jsonLD = data.items[i].data;
@@ -74,10 +73,10 @@ export function createTriplets(data) {
     return {
         nodes: allTriplets.reduce((acc, curr) => {
             if (!acc.find((n) => n.id === curr.source)) {
-                acc.push({ id: curr.source, title: curr.title });
+                acc.push({ id: curr.source, title: curr.title, img: curr.img });
             }
             if (!acc.find((n) => n.id === curr.target)) {
-                acc.push({ id: curr.target, title: curr.title });
+                acc.push({ id: curr.target, title: curr.title, img: curr.img });
             }
             return acc;
         }, []),
@@ -94,20 +93,20 @@ export function parseJSONLD(jsonLD, set) {
             {
                 source: `${Api}/resources/${set.id}`,
                 target: source,
-                title: jsonLD["o:title"]
+                title: jsonLD["o:title"],
             },
         );
     }
-    let parseRecursive = function (obj) {
+    let parseRecursive = async function (obj) {
         for (let key in obj) {
             if (key === "@id" && obj[key].startsWith(Api) && (obj["o:title"] || obj.display_title)) {
                 let splitId = obj[key].split("/")
                 let id = splitId[splitId.length - 1];
 
                 // let target = obj[key].replace("/items_sets/", "/resources/").replace("/items/", "/resources/");
-                let target = `${Api}/resources/${id}`;
-                let title = obj["o:title"] || obj.display_title;
-
+                const target = `${Api}/resources/${id}`;
+                const title = obj["o:title"] || obj.display_title;
+                
                 triplets.push({
                     source: source,
                     target: target,
@@ -173,6 +172,10 @@ export function parseProperties(obj) {
 export function observe() {
     let visible = new Set();
     let scrollingDirection;
+   
+    const options = {
+        rootMargin: '0px 0px -20% 0px',
+      }
 
     const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach((entry) => {
@@ -203,7 +206,7 @@ export function observe() {
         });
         // console.log([...visible])
         visibleLinks.set([...visible]);
-    });
+    }, options);
 
     const links = document.querySelectorAll(".markdown a[data-id]");
     links.forEach((link) => observer.observe(link));

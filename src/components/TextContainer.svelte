@@ -1,7 +1,12 @@
 <script>
     import { marked } from "marked";
     import { Api } from "../config";
-    import { selectedMarkdown, selectedNode, scrolled } from "../stores";
+    import {
+        selectedMarkdown,
+        selectedNode,
+        scrolled,
+        showItemDetail,
+    } from "../stores";
 
     let scrollContainer;
     const renderer = new marked.Renderer();
@@ -92,6 +97,7 @@
 
     function handleScroll(event) {
         $scrolled = true;
+        $showItemDetail = false;
     }
 </script>
 

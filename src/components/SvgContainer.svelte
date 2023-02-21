@@ -6,6 +6,7 @@
         allLinks,
         selectedNode,
         scrolled,
+        showItemDetail,
     } from "../stores";
     import { observe } from "../functions.js";
     import { zoom, zoomIdentity } from "d3-zoom";
@@ -13,7 +14,7 @@
     import { drag } from "d3-drag";
     import PQueue from "p-queue";
 
-    const queue = new PQueue({ concurrency: 5 }); // Limit to 5 concurrent requests
+    const queue = new PQueue({ concurrency: 10 }); // Limit the concurrent requests
 
     import {
         forceSimulation,
@@ -52,7 +53,7 @@
         d3.select(svg).call(d3zoom);
         d3.select(svg).call(
             d3zoom.transform,
-            d3.zoomIdentity.translate(width / 2, height / 2).scale(0.3)
+            d3.zoomIdentity.translate(width / 2, height / 2).scale(0.1)
         );
     }
 
@@ -100,7 +101,7 @@
             )
             .force("charge", d3.forceManyBody().strength(-nodeSize))
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("collision", d3.forceCollide().radius(nodeSize / 2 + 4))
+            .force("collision", d3.forceCollide().radius(nodeSize / 2 + 10))
             .on("tick", simulationUpdate);
     }
 
@@ -164,6 +165,7 @@
     // }
 
     function zoomed(currentEvent) {
+        $showItemDetail = false;
         transform = currentEvent.transform;
         simulationUpdate();
     }
@@ -231,6 +233,11 @@
             return { hasThumbnail: false, thumbnailUrl: null };
         }
     }
+
+    function openDetail(node) {
+        $showItemDetail = true;
+        highlightLinks(node);
+    }
 </script>
 
 <div class="graph" bind:clientWidth={width} bind:clientHeight={height}>
@@ -270,11 +277,10 @@
                         : $allLinks.includes(node.id)
                         ? "label node"
                         : "label link"}
-                    on:dblclick={highlightLinks(node)}
-                    on:click={() => highlightLinks(node)}
+                    on:click={() => openDetail(node)}
                     on:keydown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
-                            highlightLinks(node);
+                            openDetail(node);
                         }
                     }}
                     transform="translate({transform.x}
@@ -294,6 +300,7 @@
                         {:then thumbnailData}
                             {#if thumbnailData.hasThumbnail}
                                 <img
+                                    on:load={simulationUpdate}
                                     src={thumbnailData.thumbnailUrl}
                                     alt={node.title}
                                 />

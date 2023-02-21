@@ -23,20 +23,34 @@
                 }
             }
         });
+
+        // if (selections.has($selectedNode.id)) {
+        //     // Check if the selection has already been made
+        //     selection = selections.get($selectedNode.id); // Use the cached selection if it exists
+        // } else {
+        //     if ($selectedNode.id) {
+        //         try {
+        //             const response = await fetch($selectedNode.id);
+        //             selection = await response.json();
+        //             selections.set($selectedNode.id, selection); // Store the new selection in the Map
+        //         } catch (error) {
+        //             console.error(error);
+        //         }
+        //     }
+        // }
     });
 
     let parsedProperties;
     $: {
         parsedProperties = parseProperties(selection);
-        console.log(parsedProperties)
     }
 </script>
 
 <div class="detail">
     {#if selection}
-        <h3>
+        <h1>
             {selection["o:title"]}
-        </h3>
+        </h1>
         {#if selection?.thumbnail_display_urls?.large}
             <img
                 src={selection?.thumbnail_display_urls?.large}
@@ -45,8 +59,7 @@
         {/if}
         {#each parsedProperties as property}
             {#if property != undefined}
-                <h4>{property.property}:</h4>
-                <h4><em>{property.title}</em></h4>
+                <h4><strong>{property.property}</strong>: <em>{property.title}</em></h4>
             {/if}
         {/each}
     {/if}
@@ -54,10 +67,15 @@
 
 <style>
     .detail {
-        flex: 1;
-        min-width: 250px;
+        /* flex: 1; */
+        left: 0;
+        width: 400px;
+        height: calc(100vh - 20px);
         padding: 8px;
         overflow: scroll;
+        position: absolute;
+        z-index: 1;
+        box-shadow:0 9px 10px 1px black;
     }
 
     img {

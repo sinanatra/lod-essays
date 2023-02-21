@@ -6,3 +6,4 @@ export const allLinks = writable([]);
 export const visibleLinks = writable([]);
 export const selectedNode = writable([]);
 export const scrolled = writable(false);
+export const showItemDetail = writable(false);

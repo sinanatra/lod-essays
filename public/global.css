@@ -7,10 +7,10 @@ html, body {
 
 :root {
 	--grey: #2d2d2d;
-	--light-grey: #cbcbcb;
+	--light-grey: #dfdfdf;
 	--white: #efefef;
 	--black: #202020;
-	--selection: green;
+	--selection: red;
 	--node-highlite: blue;
 }
 
@@ -30,12 +30,13 @@ html, body {
 
 .link-highlite , .node-highlite_secondary {
 	color: var(--selection);
-	stroke: var(--selection);
-	stroke-width: 1;
+	stroke: var(--light-grey);
+	/* stroke-width: 5; */
+	/* stroke-opacity: .5; */
 }
 
 .link {
-	color: var(--light-grey);
+	color: var(--black);
 	stroke: var(--light-grey);
 	stroke-width: .5;
 }
@@ -46,7 +47,7 @@ header {
 }
 
 .title {
-	text-shadow: white 1px 0 10px,white 1px 0 10px,white 1px 0 10px,white 1px 0 10px,white 1px 0 10px,white 1px 0 10px;
+	/* text-shadow: white 1px 0 10px,white 1px 0 10px,white 1px 0 10px,white 1px 0 10px,white 1px 0 10px,white 1px 0 10px; */
 }
 
 /* Typography */
@@ -58,27 +59,27 @@ h1,h2,h3,h4,p {
 }
 
 h1 {
-	font-size: 1.33rem;
+	font-size: 1.33vw;
 }
 
 h2 {
-	font-size: 1.2rem;
+	font-size: 1.2vw;
 }
 	
 h3 {
-	font-size: 1.1rem;
+	font-size: 1.1vw;
 }
 
 h4 {
-	font-size: 1rem;
+	font-size: 1vw;
 }
 
 p {
-	font-size: 1.4rem;
+	font-size: 1.4vw;
 }
 
 .biblio { 
-	font-size: .875rem;
+	font-size: .875vw;
 }
 
 .markdown h1, .markdown h2, .markdown h3,.markdown h4 {
@@ -119,7 +120,6 @@ body {
 	margin: 0;
 	padding: 0;
 	font-family: "Authentic", sans-serif;
-
 }
 
 a {
@@ -132,6 +132,7 @@ a {
 }
 
 .markdown {
+	max-width: 40vw;
 	/* background-color: #F2F2F2; */
 }
 
@@ -146,6 +147,12 @@ a {
 
 .detail {
 	background-color: #fcfcfc;
+}
+
+foreignObject img {
+	max-width: 100px;
+	max-height: 100px;
+	object-fit: contain;
 }
 /* Imports */
 
