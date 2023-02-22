@@ -11,7 +11,6 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
-    "gh-pages": "^5.0.0",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
@@ -24,6 +23,7 @@
     "d3-selection": "^3.0.0",
     "d3-textwrap": "^3.0.0",
     "d3-zoom": "^3.0.0",
+    "gh-pages": "^5.0.0",
     "marked": "^4.2.12",
     "p-queue": "^7.3.4",
     "sirv-cli": "^2.0.0",
