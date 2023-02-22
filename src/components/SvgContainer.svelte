@@ -14,7 +14,7 @@
     import { drag } from "d3-drag";
     import PQueue from "p-queue";
 
-    const queue = new PQueue({ concurrency: 10 }); // Limit the concurrent requests
+    const queue = new PQueue({ concurrency: 5 }); // Limit the concurrent requests
 
     import {
         forceSimulation,
